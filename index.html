@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#071b16">
+<title>Jersey IQ — Football Quiz</title>
+<style>
+:root{--bg:#071b16;--panel:#102820;--panel2:#17372c;--lime:#c7ff4d;--muted:#a8b9b0;--white:#f5f8f5;--red:#ff626d;--line:#29483c}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -20%,#1d4936 0,#071b16 55%);color:var(--white);font-family:Inter,system-ui,Arial,sans-serif;min-height:100vh}
+button,select{font:inherit}button{cursor:pointer}
+.wrap{width:min(920px,100% - 28px);margin:auto;padding:24px 0 48px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+.brand{font-weight:950;letter-spacing:-1px;font-size:1.35rem}.brand span{color:var(--lime)}
+.pill{border:1px solid var(--line);border-radius:99px;padding:8px 12px;color:var(--muted);font-size:.78rem}
+.panel{background:linear-gradient(145deg,rgba(20,53,41,.97),rgba(12,35,28,.97));border:1px solid var(--line);border-radius:24px;padding:clamp(20px,5vw,38px);box-shadow:0 22px 70px #0005}
+.hero{text-align:center}.eyebrow{color:var(--lime);font-size:.75rem;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+h1{font-size:clamp(2.1rem,7vw,4.2rem);line-height:.98;letter-spacing:-3px;margin:13px 0}
+.sub{color:var(--muted);line-height:1.6;max-width:550px;margin:12px auto 26px}
+.settings{display:grid;grid-template-columns:1fr 1fr;gap:14px;text-align:left;margin:24px auto;max-width:600px}
+.field label{display:block;font-size:.78rem;color:var(--muted);margin:0 0 7px 3px}
+select{width:100%;padding:13px 14px;background:#081e17;color:var(--white);border:1px solid var(--line);border-radius:12px;outline:none}
+.primary{background:var(--lime);color:#102015;border:0;border-radius:13px;padding:15px 25px;font-weight:900;box-shadow:0 7px 0 #82b52c;transition:.15s}
+.primary:active{transform:translateY(4px);box-shadow:0 3px 0 #82b52c}
+.secondary{background:transparent;color:var(--white);border:1px solid var(--line);border-radius:12px;padding:12px 18px;font-weight:750}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+.stat{background:#081e17;border:1px solid var(--line);border-radius:14px;padding:13px}.stat strong{display:block;font-size:1.35rem;color:var(--lime)}.stat small{color:var(--muted)}
+.hidden{display:none!important}
+.game-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.progress{height:7px;background:#061810;border-radius:20px;overflow:hidden;margin:12px 0 22px}.progress div{height:100%;width:0;background:var(--lime);transition:width .25s}
+.questionline{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.85rem}
+.timer{font-weight:900;color:var(--lime);font-variant-numeric:tabular-nums}.timer.danger{color:var(--red)}
+.prompt{text-align:center;font-size:clamp(1.3rem,4vw,2rem);font-weight:850;margin:10px 0 20px}
+.jersey-stage{display:flex;justify-content:center;align-items:center;min-height:210px;margin:8px 0 20px}
+.jersey{width:190px;height:205px;filter:drop-shadow(0 16px 18px #0006)}
+.answers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.answer{background:#0a2119;border:1px solid var(--line);color:var(--white);padding:17px 10px;border-radius:14px;font-weight:850;font-size:1rem;min-height:62px;transition:.15s}
+.answer:hover:not(:disabled){border-color:var(--lime);transform:translateY(-2px)}
+.answer:disabled{cursor:default;opacity:.88}.answer.correct{background:#244d2e;border-color:#8bdc65}.answer.wrong{background:#54252a;border-color:var(--red)}
+.feedback{text-align:center;min-height:27px;margin:15px 0;color:var(--muted);font-weight:700}
+.game-bottom{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;color:var(--muted);font-size:.85rem}
+.result{text-align:center}.result-score{font-size:clamp(3.5rem,12vw,6rem);font-weight:950;color:var(--lime);letter-spacing:-5px;margin:10px 0}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}
+.result-grid .stat{padding:17px 8px}
+.history{margin-top:24px;text-align:left}.history h3{margin-bottom:8px}.history p{color:var(--muted);font-size:.88rem}
+footer{text-align:center;color:#789187;font-size:.75rem;margin-top:24px}
+@media(max-width:560px){.settings{grid-template-columns:1fr}.answers{grid-template-columns:1fr}.answer{min-height:54px}.stats,.result-grid{grid-template-columns:repeat(3,1fr)}.wrap{padding-top:16px}.game-bottom{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div class="brand">JERSEY<span>IQ</span></div><div class="pill">⚽ THE FOOTBALL KIT CHALLENGE</div></header>
+
+<main>
+<section id="home" class="panel hero">
+  <div class="eyebrow">How well do you know the shirt?</div>
+  <h1>NAME THAT<br><span style="color:var(--lime)">NUMBER.</span></h1>
+  <p class="sub">Recognise the player. Know the number. Beat the clock. Choose a mode and difficulty, then see how long your football knowledge can survive.</p>
+  <div class="settings">
+    <div class="field"><label for="mode">GAME MODE</label><select id="mode"><option value="player">Player → Jersey number</option><option value="number">Jersey number → Player</option></select></div>
+    <div class="field"><label for="level">DIFFICULTY</label><select id="level"><option value="normal">Normal · 10 seconds</option><option value="hard">Hard · 6 seconds</option><option value="ultra">Ultra · 4 seconds</option><option value="deadly">Deadly · 2 seconds</option></select></div>
+    <div class="field"><label for="league">PLAYER POOL</label><select id="league"><option value="all">World football + PSL</option><option value="world">World football</option><option value="psl">PSL focus</option></select></div>
+    <div class="field"><label for="length">ROUND LENGTH</label><select id="length"><option value="10">10 questions</option><option value="15">15 questions</option><option value="20">20 questions</option><option value="0">Endless practice</option></select></div>
+  </div>
+  <button class="primary" id="start">KICK OFF&nbsp; →</button>
+  <div class="stats">
+    <div class="stat"><strong id="bestHome">0</strong><small>Best score</small></div>
+    <div class="stat"><strong id="playedHome">0</strong><small>Rounds played</small></div>
+    <div class="stat"><strong id="accuracyHome">0%</strong><small>Accuracy</small></div>
+  </div>
+</section>
+
+<section id="game" class="panel hidden">
+  <div class="game-top"><div><div class="eyebrow" id="modeLabel">PLAYER → NUMBER</div><strong id="scoreLabel">SCORE 0</strong></div><button class="secondary" id="quit">Quit</button></div>
+  <div class="questionline"><span id="questionCount">QUESTION 1 / 10</span><span class="timer" id="timer">10.0s</span></div>
+  <div class="progress"><div id="progressBar"></div></div>
+  <div class="prompt" id="prompt">Which number does this player wear?</div>
+  <div class="jersey-stage" id="visual"></div>
+  <div class="answers" id="answers"></div>
+  <div class="feedback" id="feedback" aria-live="polite"></div>
+  <div class="game-bottom"><span>🔥 Streak: <b id="streak">0</b></span><span>Best streak: <b id="bestStreak">0</b></span><span id="poolLabel">WORLD + PSL</span></div>
+</section>
+
+<section id="result" class="panel result hidden">
+  <div class="eyebrow">FULL TIME</div><h1>ROUND COMPLETE</h1>
+  <div class="result-score" id="finalScore">0</div><p class="sub" id="resultMessage">Good effort!</p>
+  <div class="result-grid">
+    <div class="stat"><strong id="correctStat">0</strong><small>Correct</small></div>
+    <div class="stat"><strong id="accuracyStat">0%</strong><small>Accuracy</small></div>
+    <div class="stat"><strong id="streakStat">0</strong><small>Best streak</small></div>
+  </div>
+  <button class="primary" id="again">PLAY AGAIN&nbsp; →</button> <button class="secondary" id="homeBtn">Home</button>
+  <div class="history"><h3>Your stats</h3><p id="historyText"></p></div>
+</section>
+</main>
+<footer>Jersey IQ · A fan-made football quiz · Stats are saved on this device</footer>
+</div>
+<script>
+const players = [
+ {n:"Lionel Messi",club:"Inter Miami",num:10,league:"world",c1:"#75c7e8",c2:"#fff"},
+ {n:"Cristiano Ronaldo",club:"Al Nassr",num:7,league:"world",c1:"#f6d34b",c2:"#2450a4"},
+ {n:"Kylian Mbappé",club:"Real Madrid",num:10,league:"world",c1:"#fff",c2:"#e22b3b"},
+ {n:"Erling Haaland",club:"Manchester City",num:9,league:"world",c1:"#83c9f2",c2:"#fff"},
+ {n:"Kevin De Bruyne",club:"Manchester City",num:17,league:"world",c1:"#83c9f2",c2:"#fff"},
+ {n:"Jude Bellingham",club:"Real Madrid",num:5,league:"world",c1:"#fff",c2:"#d7b34a"},
+ {n:"Vinícius Júnior",club:"Real Madrid",num:7,league:"world",c1:"#fff",c2:"#d7b34a"},
+ {n:"Mohamed Salah",club:"Liverpool",num:11,league:"world",c1:"#d92735",c2:"#fff"},
+ {n:"Bukayo Saka",club:"Arsenal",num:7,league:"world",c1:"#e52b38",c2:"#fff"},
+ {n:"Harry Kane",club:"Bayern Munich",num:9,league:"world",c1:"#d92735",c2:"#fff"},
+ {n:"Son Heung-min",club:"Tottenham",num:7,league:"world",c1:"#fff",c2:"#172b57"},
+ {n:"Virgil van Dijk",club:"Liverpool",num:4,league:"world",c1:"#d92735",c2:"#fff"},
+ {n:"Robert Lewandowski",club:"Barcelona",num:9,league:"world",c1:"#263b9b",c2:"#d92735"},
+ {n:"Luka Modrić",club:"Real Madrid",num:10,league:"world",c1:"#fff",c2:"#d7b34a"},
+ {n:"Neymar Jr",club:"Santos",num:10,league:"world",c1:"#fff",c2:"#111"},
+ {n:"Jérémy Doku",club:"Manchester City",num:11,league:"world",c1:"#83c9f2",c2:"#fff"},
+ {n:"Rodri",club:"Manchester City",num:16,league:"world",c1:"#83c9f2",c2:"#fff"},
+ {n:"Bruno Fernandes",club:"Manchester United",num:8,league:"world",c1:"#d92735",c2:"#111"},
+ {n:"Federico Valverde",club:"Real Madrid",num:8,league:"world",c1:"#fff",c2:"#d7b34a"},
+ {n:"Lamine Yamal",club:"Barcelona",num:10,league:"world",c1:"#263b9b",c2:"#d92735"},
+ {n:"Sadio Mané",club:"Al Nassr",num:10,league:"world",c1:"#f6d34b",c2:"#2450a4"},
+ {n:"Thibaut Courtois",club:"Real Madrid",num:1,league:"world",c1:"#62b77b",c2:"#fff"},
+ {n:"Antoine Griezmann",club:"Atlético Madrid",num:7,league:"world",c1:"#d92735",c2:"#172b57"},
+ {n:"Cole Palmer",club:"Chelsea",num:10,league:"world",c1:"#72b8ed",c2:"#fff"},
+ {n:"Phil Foden",club:"Manchester City",num:47,league:"world",c1:"#83c9f2",c2:"#fff"},
+ {n:"Son Heung-min",club:"Tottenham",num:7,league:"world",c1:"#fff",c2:"#172b57"},
+ {n:"Themba Zwane",club:"Mamelodi Sundowns",num:18,league:"psl",c1:"#f6df38",c2:"#174c9c"},
+ {n:"Ronwen Williams",club:"Mamelodi Sundowns",num:30,league:"psl",c1:"#f6df38",c2:"#174c9c"},
+ {n:"Peter Shalulile",club:"Mamelodi Sundowns",num:38,league:"psl",c1:"#f6df38",c2:"#174c9c"},
+ {n:"Teboho Mokoena",club:"Mamelodi Sundowns",num:4,league:"psl",c1:"#f6df38",c2:"#174c9c"},
+ {n:"Marcelo Allende",club:"Mamelodi Sundowns",num:11,league:"psl",c1:"#f6df38",c2:"#174c9c"},
+ {n:"Relebohile Mofokeng",club:"Orlando Pirates",num:38,league:"psl",c1:"#111",c2:"#fff"},
+ {n:"Evidence Makgopa",club:"Orlando Pirates",num:17,league:"psl",c1:"#111",c2:"#fff"},
+ {n:"Thembinkosi Lorch",club:"Orlando Pirates",num:3,league:"psl",c1:"#111",c2:"#fff"},
+ {n:"Deon Hotto",club:"Orlando Pirates",num:5,league:"psl",c1:"#111",c2:"#fff"},
+ {n:"Itumeleng Khune",club:"Kaizer Chiefs",num:1,league:"psl",c1:"#f2c52d",c2:"#111"},
+ {n:"Ashley Du Preez",club:"Kaizer Chiefs",num:9,league:"psl",c1:"#f2c52d",c2:"#111"},
+ {n:"Mduduzi Shabalala",club:"Kaizer Chiefs",num:42,league:"psl",c1:"#f2c52d",c2:"#111"},
+ {n:"Khama Billiat",club:"Kaizer Chiefs",num:11,league:"psl",c1:"#f2c52d",c2:"#111"},
+ {n:"Iqraam Rayners",club:"Mamelodi Sundowns",num:17,league:"psl",c1:"#f6df38",c2:"#174c9c"},
+ {n:"Patrick Maswanganyi",club:"Orlando Pirates",num:10,league:"psl",c1:"#111",c2:"#fff"}
+];
+
+const $=id=>document.getElementById(id);
+const durations={normal:10,hard:6,ultra:4,deadly:2};
+let state={pool:[],current:null,score:0,correct:0,asked:0,streak:0,bestStreak:0,seconds:10,remaining:10,timer:null,locked:false,mode:"player",length:10};
+let stats=JSON.parse(localStorage.getItem("jerseyiq-stats")||'{"best":0,"played":0,"correct":0,"total":0,"bestStreak":0}');
+function saveStats(){localStorage.setItem("jerseyiq-stats",JSON.stringify(stats));renderStats()}
+function renderStats(){$("bestHome").textContent=stats.best;$("playedHome").textContent=stats.played;$("accuracyHome").textContent=(stats.total?Math.round(stats.correct/stats.total*100):0)+"%"}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function jerseySVG(p){return `<svg class="jersey" viewBox="0 0 220 230" role="img" aria-label="Illustrated football shirt for ${p.club}"><defs><linearGradient id="fabric" x2="0" y2="1"><stop stop-color="${p.c1}"/><stop offset="1" stop-color="${p.c2}"/></linearGradient></defs><path d="M70 18 L91 8 Q110 25 129 8 L150 18 L207 57 L184 99 L158 84 L158 218 L62 218 L62 84 L36 99 L13 57 Z" fill="url(#fabric)" stroke="#ffffff88" stroke-width="3"/><path d="M91 8 Q110 37 129 8" fill="none" stroke="#14251d" stroke-width="8"/><path d="M110 46 V218" stroke="${p.c2}" stroke-width="9" opacity=".45"/><text x="110" y="137" text-anchor="middle" font-size="58" font-weight="900" fill="${p.c1==="#fff"||p.c1==="#f6df38"||p.c1==="#f6d34b"||p.c1==="#72b8ed"?"#102015":"#fff"}">${p.num}</text><text x="110" y="160" text-anchor="middle" font-size="9" font-weight="800" fill="${p.c1==="#fff"||p.c1==="#f6df38"||p.c1==="#f6d34b"||p.c1==="#72b8ed"?"#102015":"#fff"}">${p.club.toUpperCase()}</text></svg>`}
+function startGame(){
+ clearInterval(state.timer);
+ const league=$("league").value;
+ state.pool=players.filter(p=>league==="all"||p.league===league);
+ state.mode=$("mode").value;state.length=Number($("length").value);
+ state.score=0;state.correct=0;state.asked=0;state.streak=0;state.bestStreak=0;state.locked=false;
+ state.seconds=durations[$("level").value];$("home").classList.add("hidden");$("result").classList.add("hidden");$("game").classList.remove("hidden");
+ $("modeLabel").textContent=state.mode==="player"?"PLAYER → NUMBER":"NUMBER → PLAYER";
+ $("poolLabel").textContent=league==="all"?"WORLD + PSL":league.toUpperCase();
+ nextQuestion();
+}
+function nextQuestion(){
+ clearInterval(state.timer);state.locked=false;
+ if(state.length>0&&state.asked>=state.length){finish();return}
+ const p=state.pool[Math.floor(Math.random()*state.pool.length)];state.current=p;state.asked++;
+ $("questionCount").textContent=state.length?`QUESTION ${state.asked} / ${state.length}`:`QUESTION ${state.asked}`;
+ $("prompt").textContent=state.mode==="player"?"Which jersey number is associated with this player?":"Which player is associated with this jersey number?";
+ $("visual").innerHTML=jerseySVG(p);
+ if(state.mode==="player"){
+   $("visual").innerHTML=`<div style="text-align:center"><div style="font-size:clamp(1.8rem,6vw,3rem);font-weight:950;letter-spacing:-1px">${p.n}</div><div style="color:var(--muted);margin-top:6px">${p.club}</div><div style="font-size:3.2rem;margin-top:14px">⚽</div></div>`;
+ } else {$("visual").innerHTML=jerseySVG(p)}
+ let choices;
+ if(state.mode==="player"){
+   choices=shuffle([p.num,...shuffle(state.pool.filter(x=>x.num!==p.num).map(x=>x.num)).slice(0,2)]);
+ }else{
+   choices=shuffle([p.n,...shuffle(state.pool.filter(x=>x.n!==p.n).map(x=>x.n)).slice(0,2)]);
+ }
+ $("answers").innerHTML="";
+ choices.forEach(choice=>{const b=document.createElement("button");b.className="answer";b.textContent=state.mode==="player"?choice:choice;b.onclick=()=>answer(choice,b);$("answers").appendChild(b)});
+ $("feedback").textContent="";$("scoreLabel").textContent="SCORE "+state.score;$("streak").textContent=state.streak;$("bestStreak").textContent=state.bestStreak;
+ $("progressBar").style.width=state.length?`${(state.asked-1)/state.length*100}%`:"0%";
+ state.remaining=state.seconds;updateTimer();state.timer=setInterval(()=>{state.remaining=Math.max(0,state.remaining-.1);updateTimer();if(state.remaining<=0)answer(null,null)},100);
+}
+function updateTimer(){$("timer").textContent=state.remaining.toFixed(1)+"s";$("timer").classList.toggle("danger",state.remaining<=2)}
+function answer(choice,button){
+ if(state.locked)return;state.locked=true;clearInterval(state.timer);
+ const good=state.mode==="player"?choice===state.current.num:choice===state.current.n;
+ [...$("answers").children].forEach(b=>{b.disabled=true;const val=state.mode==="player"?Number(b.textContent):b.textContent;if((state.mode==="player"?val===state.current.num:val===state.current.n))b.classList.add("correct")});
+ if(button&&!good)button.classList.add("wrong");
+ if(good){state.correct++;state.streak++;state.bestStreak=Math.max(state.bestStreak,state.streak);state.score+=10+Math.ceil(state.remaining);$("feedback").textContent="✓ Correct! +"+(10+Math.ceil(state.remaining))+" points";$("feedback").style.color="var(--lime)"}
+ else{state.streak=0;$("feedback").textContent=choice===null?"⏱ Time's up! ":"Not quite! "+state.current.n+" wears "+state.current.num+".";if(state.mode==="number")$("feedback").textContent=choice===null?"⏱ Time's up! ":"Not quite! "+state.current.n+" is the player."; $("feedback").style.color="var(--red)"}
+ $("scoreLabel").textContent="SCORE "+state.score;$("streak").textContent=state.streak;$("bestStreak").textContent=state.bestStreak;
+ $("progressBar").style.width=state.length?`${state.asked/state.length*100}%`:"0%";
+ setTimeout(nextQuestion,950);
+}
+function finish(){
+ clearInterval(state.timer);$("game").classList.add("hidden");$("result").classList.remove("hidden");
+ const acc=state.asked?Math.round(state.correct/state.asked*100):0;
+ $("finalScore").textContent=state.score;$("correctStat").textContent=state.correct+"/"+state.asked;$("accuracyStat").textContent=acc+"%";$("streakStat").textContent=state.bestStreak;
+ $("resultMessage").textContent=acc>=80?"Outstanding football knowledge. You're a kit expert!":acc>=50?"Good game. Keep sharpening that football knowledge.":"Every football expert starts somewhere. Run it back!";
+ stats.played++;stats.correct+=state.correct;stats.total+=state.asked;stats.best=Math.max(stats.best,state.score);stats.bestStreak=Math.max(stats.bestStreak,state.bestStreak);saveStats();
+ $("historyText").textContent=`Rounds played: ${stats.played} · Overall accuracy: ${stats.total?Math.round(stats.correct/stats.total*100):0}% · Highest score: ${stats.best} · Best streak: ${stats.bestStreak}`;
+}
+function home(){clearInterval(state.timer);$("game").classList.add("hidden");$("result").classList.add("hidden");$("home").classList.remove("hidden");renderStats()}
+$("start").onclick=startGame;$("again").onclick=startGame;$("homeBtn").onclick=home;$("quit").onclick=home;
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&!$("game").classList.contains("hidden")&&!state.locked){clearInterval(state.timer);state.locked=true;$("feedback").textContent="Game ended because you left the tab.";setTimeout(finish,700)}});
+renderStats();
+</script>
+</body></html>
